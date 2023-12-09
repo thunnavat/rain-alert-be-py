@@ -26,8 +26,11 @@ class ImageCropper:
         # Crop the region of interest from the result image
         cropped_image = result[y:y+h, x:x+w]
 
+        # Apply bilateral filter
+        smoothed_image = cv2.bilateralFilter(cropped_image, d=9, sigmaColor=75, sigmaSpace=75)
+
         # Encode the cropped image as a byte buffer
-        success, buffer = cv2.imencode('.jpg', cropped_image)
+        success, buffer = cv2.imencode('.jpg', smoothed_image)
 
         if success:
             print("Image fetched and stored in buffer successfully")
