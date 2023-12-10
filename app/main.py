@@ -16,10 +16,10 @@ app = FastAPI()
 async def detect_rain():
     # # Connect to MongoDB
     mongo_connection = MongoConnection(
-        db_name='rainalert',
-        username = config("MONGO_USERNAME"),
-        password = config("MONGO_PASSWORD"),
-        host='cp23tt3.sit.kmutt.ac.th',
+        db_name= config('MONGO_DBNAME'),
+        username = config('MONGO_USERNAME'),
+        password = config('MONGO_PASSWORD'),
+        host= config('MONGO_HOST_DEV') if config('MODE', default='dev') == 'dev' else config('MONGO_HOST_PROD'),
     )
     db = mongo_connection.get_database()
     
@@ -44,6 +44,7 @@ async def detect_rain():
                     color_detector = ColorDetector(image_buffer=cropped_image)
                     rain_report = rainReportsCollection(db=db)
                     rain_report.create_rain_report(reportTime=datetime.now(), reportDistrict=district['_id'], rainStatus=color_detector.get_rain_intensity())
+                    # print("Rain report created for district: " + str(district['_id']))
             else: 
                 print("Cannot find districts collection")
     else:
@@ -74,7 +75,7 @@ async def startup_event():
     current_time_desired_timezone = current_time_utc.astimezone(desired_timezone)
 
     # Specify the desired start time in the desired timezone (e.g., 10:50 PM)
-    desired_start_time = current_time_desired_timezone.replace(hour=5, minute=00, second=0, microsecond=0)
+    desired_start_time = current_time_desired_timezone.replace(hour=3, minute=00, second=0, microsecond=0)
 
     # Calculate the delay until the desired start time
     delay = (desired_start_time - current_time_desired_timezone).total_seconds()
