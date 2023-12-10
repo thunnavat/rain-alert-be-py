@@ -1,8 +1,9 @@
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI
 from database.mongo_connection import MongoConnection
 from image_processing.image_fetcher import ImageFetcher
 from image_processing.image_cropper import ImageCropper
 from image_processing.color_detector import ColorDetector
+from image_processing.text_detector import TextDetector
 import numpy as np
 from database.models.rain_report_collection import rainReportsCollection
 from datetime import datetime
@@ -27,15 +28,26 @@ async def detect_rain():
 
     districts = db['districts'].find()
 
-    if districts:
-        for district in districts:
-            image_cropper = ImageCropper(image_buffer=radar_image)
-            cropped_image = image_cropper.crop_polygon(polygon_vertices=np.array(district['coords']))
-            color_detector = ColorDetector(image_buffer=cropped_image)
-            rain_report = rainReportsCollection(db=db)
-            rain_report.create_rain_report(reportTime=datetime.now(), reportDistrict=district['_id'], rainStatus=color_detector.get_rain_intensity())
-    else: 
-        print("Cannot find districts collection")
+    if radar_image:
+        target_word_1 = "ปรับปรุง"
+        target_word_2 = "=ชั่วคราว"
+        text_detector = TextDetector(image_buffer=radar_image)
+
+        if text_detector.check_target_text(target_text=target_word_1) or text_detector.check_target_text(target_text=target_word_2):
+            print("Radar is maintaining...")
+        else:
+            print("Radar is fine")
+            if districts:
+                for district in districts:
+                    image_cropper = ImageCropper(image_buffer=radar_image)
+                    cropped_image = image_cropper.crop_polygon(polygon_vertices=np.array(district['coords']))
+                    color_detector = ColorDetector(image_buffer=cropped_image)
+                    rain_report = rainReportsCollection(db=db)
+                    rain_report.create_rain_report(reportTime=datetime.now(), reportDistrict=district['_id'], rainStatus=color_detector.get_rain_intensity())
+            else: 
+                print("Cannot find districts collection")
+    else:
+        print("Cannot fetch radar image")
 
     # Close MongoDB connection when done
     mongo_connection.close_connection()
@@ -62,7 +74,7 @@ async def startup_event():
     current_time_desired_timezone = current_time_utc.astimezone(desired_timezone)
 
     # Specify the desired start time in the desired timezone (e.g., 10:50 PM)
-    desired_start_time = current_time_desired_timezone.replace(hour=0, minute=10, second=0, microsecond=0)
+    desired_start_time = current_time_desired_timezone.replace(hour=5, minute=00, second=0, microsecond=0)
 
     # Calculate the delay until the desired start time
     delay = (desired_start_time - current_time_desired_timezone).total_seconds()

@@ -23,7 +23,6 @@ class ImageFetcher:
                 success, image_buffer = cv2.imencode('.jpg', image)
 
                 if success:
-                    print("Image fetched and stored in buffer successfully")
                     return image_buffer.tobytes()
                 else:
                     print("Failed to encode image to bytes")
