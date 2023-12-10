@@ -33,7 +33,6 @@ class ImageCropper:
         success, buffer = cv2.imencode('.jpg', smoothed_image)
 
         if success:
-            print("Image cropped and stored in buffer successfully")
             return buffer.tobytes()
         else:
             print("Failed to encode image to bytes")
