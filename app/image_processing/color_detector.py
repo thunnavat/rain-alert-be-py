@@ -15,8 +15,10 @@ class ColorDetector:
 
     def get_rain_intensity(self):
         # กำหนดช่วงสีสำหรับแต่ละสี
-        lower_green = np.array([40, 40, 40])
-        upper_green = np.array([80, 255, 255])
+        # lower_green = np.array([40, 40, 40])
+        # upper_green = np.array([80, 255, 255])
+        lower_green = np.array([18,117,89])
+        upper_green = np.array([80,255,255])
         lower_yellow = np.array([20, 100, 100])
         upper_yellow = np.array([30, 255, 255])
         lower_red = np.array([0, 100, 100])
@@ -29,8 +31,8 @@ class ColorDetector:
 
         # กำหนดค่าระดับการฝน
         if red_pixel_count > yellow_pixel_count and red_pixel_count > green_pixel_count:
-            return 'Heavy Rain'
+            return 'HEAVY RAIN'
         elif yellow_pixel_count > green_pixel_count:
-            return 'Moderate Rain'
+            return 'MODERATE RAIN'
         else:
-            return 'Light Rain' if green_pixel_count > 0 else 'No Rain'
+            return 'LIGHT RAIN' if green_pixel_count > 0 else 'NO RAIN'
