@@ -7,7 +7,7 @@ class TextDetector:
     def __init__(self, image_buffer, languages=['eng', 'tha']):
         self.image_buffer = image_buffer
         self.languages = languages
-        self.tesseract_cmd = r'' + config('TESSERACT_CMD_DEV') if config('MODE', default='dev') == 'dev' else config('TESSERACT_CMD_PROD')
+        self.tesseract_cmd = r'' + config('TESSERACT_CMD_DEV') if config('MODE', default='dev') == 'dev' else r'' + config('TESSERACT_CMD_PROD')
 
     def detect_text(self):
         pytesseract.pytesseract.tesseract_cmd = self.tesseract_cmd
