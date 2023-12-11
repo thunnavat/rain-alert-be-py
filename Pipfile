@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 requests = "*"
-opencv-python = "*"
 numpy = "*"
 fastapi = "*"
 uvicorn = "*"
@@ -13,6 +12,7 @@ pymongo = "*"
 python-decouple = "*"
 pytz = "*"
 pytesseract = "*"
+opencv-python-headless = "*"
 
 [dev-packages]
 
