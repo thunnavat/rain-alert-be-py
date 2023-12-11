@@ -75,7 +75,7 @@ async def startup_event():
     current_time_desired_timezone = current_time_utc.astimezone(desired_timezone)
 
     # Specify the desired start time in the desired timezone (e.g., 10:50 PM)
-    desired_start_time = current_time_desired_timezone.replace(hour=6, minute=10, second=0, microsecond=0)
+    desired_start_time = current_time_desired_timezone.replace(hour=16, minute=10, second=0, microsecond=0)
 
     # Calculate the delay until the desired start time
     delay = (desired_start_time - current_time_desired_timezone).total_seconds()
