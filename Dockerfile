@@ -5,7 +5,7 @@ FROM python:3.12
 WORKDIR /app
 
 # Copy Pipfile.lock to the container
-COPY Pipfile.lock /app/
+COPY Pipfile Pipfile.lock /app/
 
 # Install pipenv
 RUN pip install --no-cache-dir pipenv
@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir pipenv
 RUN pipenv install --deploy --ignore-pipfile
 
 # Copy the current directory contents into the container at /app
-COPY . /app
+COPY /app/ /app
 
 # Expose the port that your FastAPI application will run on
 EXPOSE 8000
