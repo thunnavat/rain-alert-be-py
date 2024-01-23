@@ -17,12 +17,20 @@ class ColorDetector:
         # กำหนดช่วงสีสำหรับแต่ละสี
         # lower_green = np.array([40, 40, 40])
         # upper_green = np.array([80, 255, 255])
-        lower_green = np.array([18,117,89])
-        upper_green = np.array([80,255,255])
-        lower_yellow = np.array([20, 100, 100])
-        upper_yellow = np.array([30, 255, 255])
+
+        # lower_green = np.array([18,117,89])
+        # upper_green = np.array([80,255,255])
+        # lower_yellow = np.array([20, 100, 100])
+        # upper_yellow = np.array([30, 255, 255])
+        # lower_red = np.array([0, 100, 100])
+        # upper_red = np.array([10, 255, 255])
+
+        lower_green = np.array([40, 117, 89])
+        upper_green = np.array([80, 255, 255])
+        lower_yellow = np.array([19, 100, 100])
+        upper_yellow = np.array([40, 255, 255])
         lower_red = np.array([0, 100, 100])
-        upper_red = np.array([10, 255, 255])
+        upper_red = np.array([19, 255, 255])
 
         # นับจำนวนพิกเซลในแต่ละ mask
         green_pixel_count = self.detect_color(lower_green, upper_green)
