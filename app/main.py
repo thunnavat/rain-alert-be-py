@@ -8,8 +8,8 @@ import numpy as np
 from database.models.rain_report_collection import rainReportsCollection
 from datetime import datetime
 from decouple import config
-import asyncio
-import pytz
+import schedule
+import time
 
 app = FastAPI()
 
@@ -53,64 +53,36 @@ def detect_rain():
     # Close MongoDB connection when done
     mongo_connection.close_connection()
 
-# # Background task to run the job at startup and then at intervals
-# async def run_scheduled_job():
-#     while True:
-#         await detect_rain()
-#         await asyncio.sleep(300)  # Sleep for 5 minutes
+# schedule.every(300).seconds.do(detect_rain)
 
-# # Event handler for startup
-# @app.on_event("startup")
-# async def startup_event():
-#     # Get the UTC timezone object
-#     utc_timezone = pytz.utc
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
+    
+# def startup_event():
+#     current_time = datetime.now().time()
+    
+from datetime import datetime, timedelta
+from threading import Timer
+from time import sleep
+import random
 
-#     # Specify the desired timezone (UTC+7)
-#     desired_timezone = pytz.timezone('Asia/Bangkok')  # Adjust this based on your actual timezone
+def schedule_next_run():
+    sleep_time = get_sleep_time()
+    t = Timer(sleep_time, do_work)
+    t.daemon = True
+    t.start()
 
-#     # Check the current time in UTC
-#     current_time_utc = datetime.utcnow().replace(tzinfo=utc_timezone)
+def get_sleep_time():
+    now = datetime.now()
+    last_run_time = now.replace(minute=now.minute // 5 * 5, second=0, microsecond=0)
+    next_run_time = last_run_time + timedelta(minutes=5)
+    return (next_run_time - now).total_seconds()
 
-#     # Convert the current time to the desired timezone
-#     current_time_desired_timezone = current_time_utc.astimezone(desired_timezone)
+def do_work():
+    now = datetime.now()
+    detect_rain()
+    sleep(random.uniform(0, 29))
+    schedule_next_run()
 
-#     # Specify the desired start time in the desired timezone (e.g., 10:50 PM)
-#     desired_start_time = current_time_desired_timezone.replace(hour=16, minute=10, second=0, microsecond=0)
-
-#     # Calculate the delay until the desired start time
-#     delay = (desired_start_time - current_time_desired_timezone).total_seconds()
-
-#     # If the current time is after the desired start time, run the job immediately
-#     if delay < 0:
-#         await run_scheduled_job()
-#     else:
-#         # Otherwise, run the job after the calculated delay
-#         await asyncio.sleep(delay)
-#         await run_scheduled_job()
-
-import schedule
-import time
-from datetime import datetime, timedelta, timezone
-
-# Set your desired start time in UTC+7
-start_time_utc7 = "12:30"  # Include seconds in HH:MM format with :00 for seconds
-
-# Convert the start time to a datetime object with the UTC+7 timezone
-start_time_utc7_dt = datetime.strptime(start_time_utc7, "%H:%M").replace(tzinfo=timezone(timedelta(hours=7)))
-
-# Calculate the initial delay until the next 5-minute interval
-current_time_utc7 = datetime.now(timezone(timedelta(hours=7)))
-initial_delay = (start_time_utc7_dt - current_time_utc7) % timedelta(minutes=5)
-initial_delay_seconds = initial_delay.total_seconds()
-
-# Schedule the function to run every 5 minutes
-schedule.every(5).minutes.do(detect_rain).tag('repeating_task')
-
-# Wait for the initial delay before starting the loop
-time.sleep(initial_delay_seconds)
-
-while True:
-    # Run the scheduled tasks
-    schedule.run_pending()
-    # Sleep for a short time to avoid high CPU usage
-    time.sleep(1)
+schedule_next_run()
