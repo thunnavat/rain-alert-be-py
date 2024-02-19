@@ -30,7 +30,7 @@ class ImageCropper:
         smoothed_image = cv2.bilateralFilter(cropped_image, d=9, sigmaColor=75, sigmaSpace=75)
 
         # Encode the cropped image as a byte buffer
-        success, buffer = cv2.imencode('.jpg', smoothed_image)
+        success, buffer = cv2.imencode('.png', smoothed_image)
 
         if success:
             return buffer.tobytes()
