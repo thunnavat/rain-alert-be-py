@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from decouple import config
 
 class MongoConnection:
-  def __init__(self, db_name, username=None, password=None, host='localhost', port=config("MONGO_PORT")):
+  def __init__(self, db_name, username=None, password=None, host='localhost', port=config("MONGO_PORT", default="27017")):
         self.username = username
         self.password = password
         self.host = host
