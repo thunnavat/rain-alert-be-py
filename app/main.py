@@ -8,7 +8,6 @@ import numpy as np
 from database.models.rain_report_collection import rainReportsCollection
 from datetime import datetime
 from decouple import config
-import schedule
 import time
 
 app = FastAPI()
@@ -53,36 +52,11 @@ def detect_rain():
     # Close MongoDB connection when done
     mongo_connection.close_connection()
 
-# schedule.every(300).seconds.do(detect_rain)
+def schedule_task():
+    while True:
+        current_minute = int(time.strftime("%M"))
+        if current_minute % 5 == 0 or current_minute % 5 == 5:
+            detect_rain()
+        time.sleep((5 - (current_minute % 5)) * 60)
 
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
-    
-# def startup_event():
-#     current_time = datetime.now().time()
-    
-from datetime import datetime, timedelta
-from threading import Timer
-from time import sleep
-import random
-
-def schedule_next_run():
-    sleep_time = get_sleep_time()
-    t = Timer(sleep_time, do_work)
-    t.daemon = True
-    t.start()
-
-def get_sleep_time():
-    now = datetime.now()
-    last_run_time = now.replace(minute=now.minute // 5 * 5, second=0, microsecond=0)
-    next_run_time = last_run_time + timedelta(minutes=5)
-    return (next_run_time - now).total_seconds()
-
-def do_work():
-    now = datetime.now()
-    detect_rain()
-    sleep(random.uniform(0, 29))
-    schedule_next_run()
-
-schedule_next_run()
+schedule_task()
