@@ -15,16 +15,6 @@ class ColorDetector:
 
     def get_rain_intensity(self):
         # กำหนดช่วงสีสำหรับแต่ละสี
-        # lower_green = np.array([40, 40, 40])
-        # upper_green = np.array([80, 255, 255])
-
-        # lower_green = np.array([18,117,89])
-        # upper_green = np.array([80,255,255])
-        # lower_yellow = np.array([20, 100, 100])
-        # upper_yellow = np.array([30, 255, 255])
-        # lower_red = np.array([0, 100, 100])
-        # upper_red = np.array([10, 255, 255])
-
         lower_green = np.array([40, 117, 89])
         upper_green = np.array([80, 255, 255])
         lower_yellow = np.array([19, 100, 100])

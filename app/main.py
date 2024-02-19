@@ -9,6 +9,7 @@ from database.models.rain_report_collection import rainReportsCollection
 from datetime import datetime
 from decouple import config
 import time
+import threading
 
 app = FastAPI()
 
@@ -59,8 +60,10 @@ def detect_rain():
 def schedule_task():
     while True:
         current_minute = int(time.strftime("%M"))
-        if current_minute % 5 == 0 or current_minute % 5 == 5:
-            detect_rain()
+        if current_minute % 5 == 0:
+            # เรียกใช้งาน detect_rain() ในเทรดใหม่เพื่อให้ไม่บล็อกการทำงานของ schedule_task()
+            threading.Thread(target=detect_rain).start()
+        # คำนวณเวลาที่เหลือจนถึงนาทีที่ลงท้ายด้วย 0 ใกล้ที่สุดแล้วรอจนกว่าจะถึงเวลานั้น
         time.sleep((5 - (current_minute % 5)) * 60)
 
 schedule_task()
