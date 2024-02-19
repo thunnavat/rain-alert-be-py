@@ -20,7 +20,7 @@ class ImageFetcher:
                 image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
                 # Convert the image to bytes
-                success, image_buffer = cv2.imencode('.png', image)
+                success, image_buffer = cv2.imencode('.jpg', image)
 
                 if success:
                     return image_buffer.tobytes()
