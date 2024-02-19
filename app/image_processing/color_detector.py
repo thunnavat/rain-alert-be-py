@@ -28,9 +28,9 @@ class ColorDetector:
         red_pixel_count = self.detect_color(lower_red, upper_red)
 
         # กำหนดค่าระดับการฝน
-        if red_pixel_count > yellow_pixel_count and red_pixel_count > green_pixel_count:
+        if 10 > red_pixel_count > yellow_pixel_count and 10 > red_pixel_count > green_pixel_count:
             return 'HEAVY RAIN'
-        elif yellow_pixel_count > green_pixel_count:
+        elif 10 > yellow_pixel_count > green_pixel_count:
             return 'MODERATE RAIN'
         else:
-            return 'LIGHT RAIN' if green_pixel_count > 0 else 'NO RAIN'
+            return 'LIGHT RAIN' if green_pixel_count > 10 else 'NO RAIN'
