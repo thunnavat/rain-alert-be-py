@@ -13,6 +13,9 @@ RUN pip install --no-cache-dir pipenv
 # Install dependencies
 RUN pipenv install --deploy --ignore-pipfile
 
+# Install Tesseract OCR and Thai language support
+RUN apt-get update && apt-get install -y tesseract-ocr tesseract-ocr-tha
+
 # Copy the .env file
 COPY .env /app/
 
