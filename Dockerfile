@@ -13,6 +13,9 @@ RUN pip install --no-cache-dir pipenv
 # Install dependencies
 RUN pipenv install --deploy --ignore-pipfile
 
+# Copy the .env file
+COPY .env /app/
+
 # Copy the current directory contents into the container at /app
 COPY /app/ /app
 
