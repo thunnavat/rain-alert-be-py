@@ -31,13 +31,11 @@ def detect_rain():
     districts = db['districts'].find()
 
     if radar_image:
-        target_word_1 = "ปรับปรุง"
-        target_word_2 = "ชั่วคราว"
-        target_word_3 = "หยุดการให้บริการ"
-        target_word_4 = "maintenance"
+        target_word_1 = "ขออภัยในความไม่สะดวก"
+        target_word_2 = "อยู่ระหว่างการซ่อมบํารุง"
         text_detector = TextDetector(image_buffer=radar_image)
 
-        if text_detector.check_target_text(target_text=target_word_1) or text_detector.check_target_text(target_text=target_word_2) or text_detector.check_target_text(target_text=target_word_3) or text_detector.check_target_text(target_text=target_word_4):
+        if text_detector.check_target_text(target_text=target_word_1) or text_detector.check_target_text(target_text=target_word_2):
             print("Radar is maintaining...")
         else:
             print("Radar is fine")
@@ -45,9 +43,10 @@ def detect_rain():
                 for district in districts:
                     image_cropper = ImageCropper(image_buffer=radar_image)
                     cropped_image = image_cropper.crop_polygon(polygon_vertices=np.array(district['coords']))
-                    color_detector = ColorDetector(image_buffer=cropped_image)
+                    color_detector = ColorDetector(image_buffer=cropped_image, total_pixel=district['totalPixel'])
+                    rain_result = color_detector.get_rain_intensity()
                     rain_report = rainReportsCollection(db=db)
-                    rain_report.create_rain_report(reportTime=datetime.now(), reportDistrict=district['_id'], rainStatus=color_detector.get_rain_intensity())
+                    rain_report.create_rain_report(reportTime=datetime.now(), reportDistrict=district['_id'], rainStatus=rain_result['rainStatus'], rainArea=rain_result['rainArea'])
                     # print("Rain report created for district: " + str(district['_id']))
             else: 
                 print("Cannot find districts collection")
@@ -57,9 +56,28 @@ def detect_rain():
     # Close MongoDB connection when done
     mongo_connection.close_connection()
 
+def delete_reports_older_than_7_days():
+    # Connect to MongoDB
+    mongo_connection = MongoConnection(
+        db_name= config('MONGO_DBNAME'),
+        username = config('MONGO_USERNAME'),
+        password = config('MONGO_PASSWORD'),
+        host= config('MONGO_HOST_DEV') if config('MODE', default='dev') == 'dev' else config('MONGO_HOST_PROD'),
+    )
+    db = mongo_connection.get_database()
+    rain_report = rainReportsCollection(db=db)
+    rain_report.delete_reports_older_than_7_days()
+    # Close MongoDB connection when done
+    mongo_connection.close_connection()
+
 def schedule_task():
     while True:
+        current_hour = int(time.strftime("%H"))
         current_minute = int(time.strftime("%M"))
+        # Execute midnight task if current time is midnight
+        if current_hour == 0 and current_minute == 0:
+            delete_reports_older_than_7_days()  # Execute the midnight task
+            
         if current_minute % 5 == 0:
             # เรียกใช้งาน detect_rain() ในเทรดใหม่เพื่อให้ไม่บล็อกการทำงานของ schedule_task()
             threading.Thread(target=detect_rain).start()
