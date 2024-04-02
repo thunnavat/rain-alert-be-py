@@ -111,8 +111,8 @@ def schedule_task():
         current_hour = int(time.strftime("%H"))
         current_minute = int(time.strftime("%M"))
         # Execute midnight task if current time is midnight
-        if current_hour == 0 and current_minute == 0:
-            delete_reports_older_than_7_days()  # Execute the midnight task
+        if current_hour == 17 and current_minute == 0:
+            threading.Thread(target=delete_reports_older_than_7_days).start()
             
         if current_minute % 5 == 0:
             # เรียกใช้งาน detect_rain() ในเทรดใหม่เพื่อให้ไม่บล็อกการทำงานของ schedule_task()
