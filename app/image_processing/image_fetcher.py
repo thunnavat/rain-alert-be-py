@@ -1,6 +1,7 @@
 import requests
 import cv2
 import numpy as np
+import logging
 
 class ImageFetcher:
     def __init__(self, url):
@@ -29,9 +30,9 @@ class ImageFetcher:
                     return None
 
             else:
-                print(f"Failed to fetch image. Status code: {response.status_code}")
+                logging.error(f"Failed to fetch image. Status code: {response.status_code}")
                 return None
 
         except Exception as e:
-            print(f"An error occurred: {str(e)}")
+            logging.error(f"An error occurred: {str(e)}")
             return None

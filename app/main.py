@@ -68,7 +68,7 @@ def detect_rain():
         target_word_1 = "ขออภัยในความไม่สะดวก"
         target_word_2 = "อยู่ระหว่างการซ่อมบํารุง"
         text_detector = TextDetector(image_buffer=radar_image)
-
+        
         if text_detector.check_target_text(target_text=target_word_1) or text_detector.check_target_text(target_text=target_word_2):
             print("Radar is maintaining...")
         else:
@@ -77,13 +77,16 @@ def detect_rain():
                 for district in districts:
                     image_cropper = ImageCropper(image_buffer=radar_image)
                     cropped_image = image_cropper.crop_polygon(polygon_vertices=np.array(district['coords']))
-                    color_detector = ColorDetector(image_buffer=cropped_image, total_pixel=district['totalPixel'])
-                    rain_result = color_detector.get_rain_intensity()
-                    rain_report = rainReportsCollection(db=db)
-                    rain_report.create_rain_report(reportTime=datetime.now(), reportDistrict=district['_id'], rainStatus=rain_result['rainStatus'], rainArea=rain_result['rainArea'])
-                    if rain_result['rainStatus'] != "NO RAIN":
-                        notification_sender(district=district['districtName'], rain_status=rain_result['rainStatus'])
-                    # print("Rain report created for district: " + str(district['_id']))
+                    if cropped_image:
+                        color_detector = ColorDetector(image_buffer=cropped_image, total_pixel=district['totalPixel'])
+                        rain_result = color_detector.get_rain_intensity()
+                        rain_report = rainReportsCollection(db=db)
+                        rain_report.create_rain_report(reportTime=datetime.now(), reportDistrict=district['_id'], rainStatus=rain_result['rainStatus'], rainArea=rain_result['rainArea'])
+                        if rain_result['rainStatus'] != "NO RAIN":
+                            notification_sender(district=district['districtName'], rain_status=rain_result['rainStatus'])
+                        # print("Rain report created for district: " + str(district['_id']))
+                    else:
+                        print("Cannot crop image")
             else: 
                 print("Cannot find districts collection")
     else:
