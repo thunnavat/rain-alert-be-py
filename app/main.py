@@ -69,9 +69,7 @@ def detect_rain():
         target_word_2 = "อยู่ระหว่างการซ่อมบํารุง"
         text_detector = TextDetector(image_buffer=radar_image)
         
-        if text_detector.check_target_text(target_text=target_word_1) or text_detector.check_target_text(target_text=target_word_2):
-            print("Radar is maintaining...")
-        else:
+        if not text_detector.check_target_text(target_text=target_word_1) or not text_detector.check_target_text(target_text=target_word_2):
             print("Radar is fine")
             if districts:
                 for district in districts:
@@ -89,6 +87,8 @@ def detect_rain():
                         print("Cannot crop image")
             else: 
                 print("Cannot find districts collection")
+        else:
+            print("Radar is maintaining...")            
     else:
         print("Cannot fetch radar image")
 
