@@ -17,6 +17,8 @@ import cv2
 
 app = FastAPI()
 
+last_rainning_report = []
+
 def notification_sender(district, rain_status):
     # Connect to MongoDB
     mongo_connection = MongoConnection(
@@ -72,6 +74,10 @@ def detect_rain():
         if not text_detector.check_target_text(target_text=target_word_1) or not text_detector.check_target_text(target_text=target_word_2):
             print("Radar is fine")
             if districts:
+                # rainning_now = []
+                # print(f"First rainnig now line 78 ::: {rainning_now}")
+                global last_rainning_report
+                print(f"First Last rain line 79 ::: {last_rainning_report}")
                 for district in districts:
                     image_cropper = ImageCropper(image_buffer=radar_image)
                     cropped_image = image_cropper.crop_polygon(polygon_vertices=np.array(district['coords']))
@@ -80,11 +86,19 @@ def detect_rain():
                         rain_result = color_detector.get_rain_intensity()
                         rain_report = rainReportsCollection(db=db)
                         rain_report.create_rain_report(reportTime=datetime.now(), reportDistrict=district['_id'], rainStatus=rain_result['rainStatus'], rainArea=rain_result['rainArea'])
+                        if district['_id'] in last_rainning_report:
+                            if rain_result['rainStatus'] == "NO RAIN":
+                                last_rainning_report.remove(district['_id'])
                         if rain_result['rainStatus'] != "NO RAIN":
-                            notification_sender(district=district['districtName'], rain_status=rain_result['rainStatus'])
+                            if district['_id'] not in last_rainning_report:
+                                last_rainning_report.append(district['_id'])
+                                threading.Thread(target=notification_sender(district=district['districtName'], rain_status=rain_result['rainStatus'])).start()
                         # print("Rain report created for district: " + str(district['_id']))
                     else:
                         print("Cannot crop image")
+                # last_rainning_report = rainning_now
+                # print(f"Last rainnig now line 95 ::: {rainning_now}")
+                print(f"Last Last rain line 96 ::: {last_rainning_report}")
             else: 
                 print("Cannot find districts collection")
         else:
